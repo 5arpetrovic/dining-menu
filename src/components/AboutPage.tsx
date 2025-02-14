@@ -1,6 +1,5 @@
-import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, Typography, Button, } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '../styles/theme';
 import { useSharedStyles } from '../styles/useSharedStyles';
 
 export function About() {
@@ -8,8 +7,7 @@ export function About() {
     const navigate = useNavigate();
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
+        <>
             <Box sx={sharedBoxStyles}>
                 <Box sx={backgroundLayer} />
                 <Typography
@@ -55,6 +53,5 @@ Sunday: 10:00 AM - 10:00 PM`}
                     Home
                 </Button>
             </Box>
-        </ThemeProvider>
-    );
+        </>);
 }

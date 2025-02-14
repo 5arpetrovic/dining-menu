@@ -1,6 +1,5 @@
-import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, Typography, Button, } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '../styles/theme';
 import { useSharedStyles } from '../styles/useSharedStyles';
 
 export function WelcomeMenu() {
@@ -8,8 +7,7 @@ export function WelcomeMenu() {
     const navigate = useNavigate();
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
+        <>
             <Box sx={sharedBoxStyles}>
                 <Box sx={backgroundLayer} />
                 <Box
@@ -61,6 +59,6 @@ export function WelcomeMenu() {
                     </Button>
                 </Box>
             </Box>
-        </ThemeProvider>
+        </>
     );
 }

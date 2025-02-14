@@ -1,26 +1,35 @@
 import { useEffect, useState } from "react";
-import { Box, Grid } from "@mui/material";
+import { Grid, } from "@mui/material";
 import { allMealsApi } from "../services/mealApi";
 import { Meal, Meals } from "../types/meals";
 import { MealCard } from "./MealCardComponent";
 import { PaginationButtons } from './PanationButtonsComponent';
 import { Loading } from "./LoadingComponent";
 import { Error } from "./ErrorComponents";
+import { useLocation } from 'react-router-dom';
 
-export function AllMeals() {
+export function SearchComponent() {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [displayedMeals, setDisplayedMeals] = useState<Meal[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const alphabet = "abcdefghijklmnopqrstuvwxyz";
+    const [searchQuery, setSearchQuery] = useState<string>('');  // Stanje za pretragu
     const itemsPerPage = 9;
+
+    const location = useLocation();
+
+    // Učitaj searchQuery iz URL parametara
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setSearchQuery(params.get('query') || '');  // Ako nema query parametra, koristi prazno
+    }, [location.search]);
 
     useEffect(() => {
         async function loadMealApi() {
             setLoading(true);
             setError(null);
             try {
-                // Paralelni API zahtevi za bolje performanse
+                const alphabet = "abcdefghijklmnopqrstuvwxyz";
                 const requests = alphabet.split("").map((char) => allMealsApi(char));
                 const results = await Promise.all(requests);
 
@@ -39,8 +48,13 @@ export function AllMeals() {
         loadMealApi();
     }, []);
 
+    // Filtriranje obroka na osnovu searchQuery
+    const filteredMeals = displayedMeals.filter(meal =>
+        meal.strMeal.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const handleNextPage = () => {
-        if ((currentPage + 1) * itemsPerPage < displayedMeals.length) {
+        if ((currentPage + 1) * itemsPerPage < filteredMeals.length) {
             setCurrentPage((prev) => prev + 1);
         }
     };
@@ -51,7 +65,7 @@ export function AllMeals() {
         }
     };
 
-    const paginatedMeals = displayedMeals.slice(
+    const paginatedMeals = filteredMeals.slice(
         currentPage * itemsPerPage,
         (currentPage + 1) * itemsPerPage
     );
@@ -77,31 +91,24 @@ export function AllMeals() {
                 ) : error ? (
                     <Error message={error} />
                 ) : (
-                    <Grid container spacing={2}>
-                        {paginatedMeals.map((meal) => (
-                            <MealCard
-                                key={meal.idMeal.toString()}
-                                meal={{
-                                    ...meal,
-                                    idMeal: meal.idMeal.toString(),
-                                }}
-                            />
-                        ))}
-                        {Array.from({ length: itemsPerPage - paginatedMeals.length }).map((_, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={`placeholder-${index}`}>
-                                <Box
-                                    sx={{
-                                        minHeight: 214, // Ista visina kao MealCard
-                                        backgroundColor: "transparent",
+                    <>
+
+                        <Grid container spacing={2}>
+                            {paginatedMeals.map((meal) => (
+                                <MealCard
+                                    key={meal.idMeal.toString()}
+                                    meal={{
+                                        ...meal,
+                                        idMeal: meal.idMeal.toString(),
                                     }}
                                 />
-                            </Grid>
-                        ))}
-                    </Grid>
+                            ))}
+                        </Grid>
+                    </>
                 )}
                 <PaginationButtons
                     currentPage={currentPage}
-                    totalItems={displayedMeals.length}
+                    totalItems={filteredMeals.length}
                     itemsPerPage={itemsPerPage}
                     onNext={handleNextPage}
                     onPrev={handlePrevPage}
@@ -110,5 +117,3 @@ export function AllMeals() {
         </>
     );
 }
-
-

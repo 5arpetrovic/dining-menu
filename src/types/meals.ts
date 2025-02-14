@@ -79,15 +79,7 @@ export type AreaMeal = {
   idMeal: string;
 };
 
-export type AreaList = {
-  meals: Area[];
-};
-
 export type Area = {
-  strArea: string;
-};
-
-export type MealArea = {
   strArea: string;
 };
 
@@ -105,5 +97,21 @@ export type CountryListProps = {
   countries: Area[];
   selectedCategory: string;
   onCategorySelect: (category: string) => void;
+}
+
+export interface PaginationButtonsProps {
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onNext: () => void;
+  onPrev: () => void;
+}
+
+export interface MealCardProps {
+  meal: {
+    idMeal: string;
+    strMeal: string;
+    strMealThumb: string;
+  };
 }
 

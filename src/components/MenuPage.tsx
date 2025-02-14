@@ -1,43 +1,56 @@
-import { useState, useEffect, useRef } from 'react';
-import { ThemeProvider } from '@emotion/react';
-import { Box, CssBaseline, Grid, ListItem, ListItemText } from '@mui/material';
+import { useState, useEffect } from 'react';
+
+import { Box, Grid, ListItem, ListItemText } from '@mui/material';
+
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
+
 import { alpha } from '@mui/system';
+
 import { theme } from '../styles/theme';
+
 import { fetchMealCategories, fetchMenuMealCategory } from '../services/mealApi';
-import { Loading, Error, PaginationButtons, MealCard } from './MealComponents';
+
+import { MealCard } from "./MealCardComponent";
+
+import { PaginationButtons } from './PanationButtonsComponent';
+
 import { MealCategory, MenuMealCategory } from '../types/meals';
-import { Header } from './Header';
-import { allMenuBackground } from './MealComponents';
-const { backgroundLayer } = allMenuBackground();
+
+import { Loading } from "./LoadingComponent";
+
+import { Error } from "./ErrorComponents";
+
 
 export function MenuPage() {
+
     const [categories, setCategories] = useState<MealCategory[]>([]);
+
     const [menuCategory, setMenuCategory] = useState<MenuMealCategory[]>([]);
+
     const [selectedCategory, setSelectedCategory] = useState<string>('');
-    const [loading, setLoading] = useState(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
     const [error, setError] = useState<string | null>(null);
-    const [listHeight, setListHeight] = useState<number>(0);
-    const headerRef = useRef<HTMLDivElement>(null);
-    const [currentPage, setCurrentPage] = useState(0);
+
+    const [currentPage, setCurrentPage] = useState<number>(0);
+
     const itemsPerPage = 9;
 
-    useEffect(() => {
-        const updateHeight = () => {
-            const headerHeight = headerRef.current?.getBoundingClientRect().height || 0;
-            setListHeight(window.innerHeight - headerHeight);
-        };
-        updateHeight();
-        window.addEventListener('resize', updateHeight);
-        return () => window.removeEventListener('resize', updateHeight);
-    }, []);
+    // Ažuriranje visine liste u zavisnosti od visine zaglavlja
 
+    // Učitaj kategorije i postavi prvu kao selektovanu
     useEffect(() => {
         const loadCategories = async () => {
             try {
                 setLoading(true);
                 const data = await fetchMealCategories();
                 setCategories(data);
+
+                // Ako postoje kategorije, postavi prvu kao selektovanu
+                if (data.length > 0) {
+                    setSelectedCategory(data[0].strCategory);
+                }
             } catch {
                 setError('Failed to load meal categories.');
             } finally {
@@ -47,6 +60,7 @@ export function MenuPage() {
         loadCategories();
     }, []);
 
+    // Učitaj stavke menija na osnovu selektovane kategorije
     useEffect(() => {
         if (!selectedCategory) return;
         const loadMenuItems = async () => {
@@ -64,7 +78,9 @@ export function MenuPage() {
         loadMenuItems();
     }, [selectedCategory]);
 
+    // Funkcija za selektovanje kategorije
     const handleCategorySelect = (category: string) => setSelectedCategory(category);
+
     const handleNextPage = () => setCurrentPage((prev) => prev + 1);
     const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 0));
 
@@ -98,18 +114,13 @@ export function MenuPage() {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Box sx={backgroundLayer} />
-            <div ref={headerRef}>
-                <Header />
-            </div>
+        <>
             {loading ? (
                 <Loading />
             ) : error ? (
                 <Error message={error} />
             ) : (
-                <Grid container sx={{ height: listHeight, width: "auto", boxSizing: "border-box" }}>
+                <Grid container sx={{ width: "auto", boxSizing: "border-box" }}>
                     <Grid item md={1.5}>
                         <FixedSizeList
                             height={Math.min(categories.length * 53, 53 * 13)}
@@ -159,6 +170,7 @@ export function MenuPage() {
                     </Grid>
                 </Grid>
             )}
-        </ThemeProvider>
+        </>
     );
 }
+

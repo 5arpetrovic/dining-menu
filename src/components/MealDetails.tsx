@@ -1,12 +1,10 @@
-import { ThemeProvider } from "@emotion/react";
-import { theme } from "../styles/theme";
-import { Box, CssBaseline, Grid, Typography, CircularProgress, Button } from "@mui/material";
+import { Box, Grid, Typography, CircularProgress, Button } from "@mui/material";
 import { Header } from "./Header";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchMealInfo } from "../services/mealApi";
 import { Meal } from "../types/meals";
-import { mealBackground } from "./MealComponents";
+import { mealBackground } from "../styles/mealBackgroundStyle";
 
 export function MealDetails() {
     const { id } = useParams<{ id: string }>();
@@ -33,19 +31,17 @@ export function MealDetails() {
 
     if (loading) {
         return (
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
+            <>
                 <Box sx={backgroundLayer} />
-                <Header />
                 <CircularProgress sx={{ display: "block", margin: "auto", marginTop: 5 }} />
-            </ThemeProvider>
+            </>
+
         );
     }
 
     if (error) {
         return (
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
+            <>
                 <Box sx={backgroundLayer} />
                 <Header />
                 <Box sx={{ textAlign: "center", marginTop: 5 }}>
@@ -54,15 +50,14 @@ export function MealDetails() {
                         Back
                     </Button>
                 </Box>
-            </ThemeProvider>
+            </>
         );
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
+        <>
             <Box sx={backgroundLayer} />
-            <Header />
+
 
             {mealDetails ? (
                 <Grid container spacing={3} sx={{ padding: 3, justifyContent: "center" }}>
@@ -74,7 +69,6 @@ export function MealDetails() {
                             style={{
                                 borderRadius: "8px",
                                 width: "100%",
-                                maxHeight: "80vh", // Sprečava prelaženje slike preko ekrana
                                 objectFit: "contain",
                             }}
                         />
@@ -86,15 +80,20 @@ export function MealDetails() {
                             {mealDetails.strMeal}
                         </Typography>
                         <Typography variant="h6">Ingredients:</Typography>
-                        <ul>
-                            {Array.from({ length: 20 }).map((_, i) => {
-                                const ingredient = mealDetails[`strIngredient${i + 1}` as keyof Meal];
-                                const measure = mealDetails[`strMeasure${i + 1}` as keyof Meal];
-                                return ingredient && measure ? (
-                                    <li key={i}>{ingredient} - {measure}</li>
-                                ) : null;
-                            })}
-                        </ul>
+
+                        {/* Box sa sastojcima, omogućeno skrolovanje */}
+                        <Box sx={{ maxHeight: "60vh", overflowY: "auto" }}>
+                            <ul>
+                                {Array.from({ length: 20 }).map((_, i) => {
+                                    const ingredient = mealDetails[`strIngredient${i + 1}` as keyof Meal];
+                                    const measure = mealDetails[`strMeasure${i + 1}` as keyof Meal];
+                                    return ingredient && measure ? (
+                                        <li key={i}>{ingredient} - {measure}</li>
+                                    ) : null;
+                                })}
+                            </ul>
+                        </Box>
+
                         <Button variant="contained" color="primary" onClick={() => navigate("/menu")} sx={{ marginTop: 2 }}>
                             Back
                         </Button>
@@ -103,6 +102,9 @@ export function MealDetails() {
             ) : (
                 <Typography textAlign="center">Meal details not found</Typography>
             )}
-        </ThemeProvider>
+        </>
     );
 }
+
+
+

@@ -2,7 +2,7 @@ import { keyframes } from '@mui/system';
 import { SxProps } from '@mui/system';
 import backgroundImage from "../assets/background.jpg";
 
-// **1. Animacije**
+
 export const fadeIn = keyframes`
   from {
     opacity: 0;
@@ -23,14 +23,13 @@ export const slideInFromRight = keyframes`
   }
 `;
 
-// **2. Custom hook za deljenje stilova**
 export const useSharedStyles = () => {
   const sharedBoxStyles: SxProps = {
     position: 'relative',
     width: '100%',
     height: '100vh',
     display: 'flex',
-    flexDirection: 'column', // Dodato da komponente budu vertikalno složene
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     bgcolor: 'background.default',
@@ -68,8 +67,8 @@ export const useSharedStyles = () => {
       backgroundColor: 'primary.main',
       color: '#fff',
       '&:hover': {
-        backgroundColor: 'primary.main', // Ostaje ista boja
-        cursor: 'default', // Sprečava promenu kursora
+        backgroundColor: 'primary.main',
+        cursor: 'default',
       },
     }),
   });
