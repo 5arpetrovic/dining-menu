@@ -1,12 +1,17 @@
 // National dishes
-export type Meal = {
-  idMeal: number;
+
+interface GenericPropMeal {
   strMeal: string;
+  strMealThumb: string;
+  idMeal: number | string;
+}
+
+export interface Meal extends GenericPropMeal {
   strDrinkAlternate: string | null;
   strCategory: string;
   strArea: string;
   strInstructions: string;
-  strMealThumb: string;
+
   strTags: string | null;
   strYoutube: string;
   strIngredient1: string | null;
@@ -53,7 +58,7 @@ export type Meal = {
   strImageSource: string | null;
   strCreativeCommonsConfirmed: string | null;
   dateModified: string | null;
-};
+}
 
 export type Meals = {
   meals: Meal[];
@@ -63,55 +68,41 @@ export type MealCategory = {
   strCategory: string;
 };
 
-export type MenuMealCategory = {
-  strMeal: string;
-  strMealThumb: string;
-  idMeal: number;
-};
+export interface MenuMealCategory extends GenericPropMeal {}
 
 export type MealList = {
   meals: AreaMeal[];
 };
 
-export type AreaMeal = {
-  strMeal: string;
-  strMealThumb: string;
-  idMeal: string;
-};
+export interface AreaMeal extends GenericPropMeal {}
 
 export type Area = {
   strArea: string;
 };
 
-export type MealGridProps = {
+interface GenericType {
+  itemsPerPage: number;
+  onNext: () => void;
+  onPrev: () => void;
+}
+export interface MealGridProps extends GenericType {
   loading: boolean;
   error: string | null;
   meals: MenuMealCategory[];
   currentPage: number;
-  itemsPerPage: number;
-  onNextPage: () => void;
-  onPrevPage: () => void;
 }
 
 export type CountryListProps = {
   countries: Area[];
   selectedCategory: string;
   onCategorySelect: (category: string) => void;
-}
+};
 
-export interface PaginationButtonsProps {
+export interface PaginationButtonsProps extends GenericType {
   currentPage: number;
   totalItems: number;
-  itemsPerPage: number;
-  onNext: () => void;
-  onPrev: () => void;
 }
 
 export interface MealCardProps {
-  meal: {
-    idMeal: string;
-    strMeal: string;
-    strMealThumb: string;
-  };
+  meal: GenericPropMeal;
 }
-

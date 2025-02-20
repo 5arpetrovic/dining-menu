@@ -30,7 +30,7 @@ export const MealCard: React.FC<MealCardProps> = ({ meal }) => {
           transform: "scale(1.05)",
         },
       }}
-      onClick={() => navigate(`/menu/${meal.strMeal}`)}
+      onClick={() => navigate(`/menu/${meal.strMeal.replace(/ /g, "-")}`)}
     >
       <img
         src={meal.strMealThumb}

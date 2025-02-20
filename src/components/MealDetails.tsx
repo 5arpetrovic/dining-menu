@@ -18,7 +18,9 @@ export function MealDetails() {
     async function loadMeal() {
       try {
         setLoading(true);
-        const details = await getData(`search.php?s=${id!}`);
+        const details = await getData(
+          `search.php?s=${id?.replace(/-/g, " ")!}`
+        );
         setLoading(false);
         setMealDetails(details.meals[0]);
       } catch (err: any) {

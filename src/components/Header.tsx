@@ -8,15 +8,17 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import { alpha } from "@mui/system";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 interface HeaderProps {
   setSearch: (searchText: string) => void;
 }
+
 export const Header: React.FC<HeaderProps> = ({ setSearch }) => {
   const { buttonStyles } = useSharedStyles();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { id } = useParams();
   const [category, setCategory] = useState("food-category");
 
   useEffect(() => {
@@ -139,22 +141,24 @@ export const Header: React.FC<HeaderProps> = ({ setSearch }) => {
             gap: "10px",
           }}
         >
-          <Box
-            component="form"
-            sx={{
-              "& > :not(style)": { m: 1, width: "25ch" },
-            }}
-            noValidate
-            autoComplete="off"
-          >
-            <TextField
-              label="Search..."
-              variant="outlined"
-              value={searchQuery}
-              onChange={handleSearch}
-              sx={{ width: "25ch" }}
-            />
-          </Box>
+          {window.location.pathname.length < 15 && (
+            <Box
+              component="form"
+              sx={{
+                "& > :not(style)": { m: 1, width: "25ch" },
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <TextField
+                label="Search..."
+                variant="outlined"
+                value={searchQuery}
+                onChange={handleSearch}
+                sx={{ width: "25ch" }}
+              />
+            </Box>
+          )}
         </Box>
       </Box>
     </>
