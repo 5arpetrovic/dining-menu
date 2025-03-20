@@ -1,5 +1,4 @@
 import { PaginationButtonsProps } from "../types/meals";
-
 import { Grid, Button } from "@mui/material";
 
 export const PaginationButtons: React.FC<PaginationButtonsProps> = ({

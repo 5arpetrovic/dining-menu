@@ -3,107 +3,110 @@ import { theme } from "../styles/theme";
 import { Grid, ListItem, ListItemText } from "@mui/material";
 import { getData } from "../services/mealApi";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
-import { Area, MenuMealCategory } from "../types/meals";
+import { Meal } from "../types/meals";
 import { alpha } from "@mui/system";
 import { Loading } from "./LoadingComponent";
 import { Error } from "./ErrorComponents";
 import { MealCard } from "./MealCardComponent";
 import { PaginationButtons } from "./PaginationButtonsComponent";
 
-interface NationalDishesProps {
+interface AllIngredientsProps {
     searchParams: string;
 }
 
 const cardHeight = 214;
 const itemsPerPage = 12;
 
-export function NationalDishes({ searchParams }: NationalDishesProps) {
-
-    const [countries, setCountries] = useState<Area[]>([]);
-    const [menuCategory, setMenuCategory] = useState<MenuMealCategory[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState<string>("");
-    const [filteredCountries, setFilteredCountries] = useState<Area[]>([]);
+export const Ingredients: React.FC<AllIngredientsProps> = ({ searchParams }) => {
+    const [ingredients, setIngredients] = useState<string[]>([]);
+    const [filteredIngredients, setFilteredIngredients] = useState<string[]>([]);
+    const [meals, setMeals] = useState<Meal[]>([]);
+    const [selectedIngredient, setSelectedIngredient] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(0);
-    const [listHeight, setListHeight] = useState<number>(0);
-
-    useEffect(() => {
-        if (countries.length > 0 && listHeight === 0) {
-            setListHeight(Math.min(countries.length * 53, 53 * 13));
-        }
-    }, [countries, listHeight]);
 
     useEffect(() => {
         if (searchParams) {
-            setFilteredCountries(
-                countries.filter((country) =>
-                    country?.strArea?.toLowerCase().includes(searchParams.toLowerCase())
-                )
+            const filtered = ingredients.filter(ingredient =>
+                ingredient.toLowerCase().includes(searchParams.toLowerCase())
             );
+            setFilteredIngredients(filtered);
+
+            if (!filtered.includes(selectedIngredient)) {
+                setSelectedIngredient(filtered.length ? filtered[0] : "");
+            }
         } else {
-            setFilteredCountries(countries);
+            setFilteredIngredients(ingredients);
         }
-    }, [searchParams, countries]);
+    }, [searchParams, ingredients]);
+
 
     useEffect(() => {
-        const loadCountries = async () => {
+        const loadIngredients = async () => {
             try {
                 setLoading(true);
-                const data = await getData(`list.php?a=list`);
-
-                setCountries(data.meals);
-
-                if (data.meals.length) {
-                    setSelectedCategory(data.meals[0].strArea);
+                const data = await getData(`list.php?i=list`);
+                const ingredientList = data.meals.map((meal: any) => meal.strIngredient);
+                setIngredients(ingredientList);
+                setFilteredIngredients(ingredientList);
+                if (ingredientList.length) {
+                    setSelectedIngredient(ingredientList[0]);
                 }
             } catch (err) {
-                setError("Failed to load categories.");
+                setError("Failed to load ingredients.");
             } finally {
                 setLoading(false);
             }
         };
-
-        loadCountries();
+        loadIngredients();
     }, []);
 
     useEffect(() => {
-        if (!selectedCategory) return;
+        if (!selectedIngredient) return;
 
-        const loadMenuCategory = async () => {
+        const loadMeals = async () => {
             try {
                 setLoading(true);
-                const data = await getData(`filter.php?a=${selectedCategory}`);
-                setMenuCategory(data.meals);
+                const data = await getData(`filter.php?i=${selectedIngredient}`);
+                setMeals(data.meals || []);
                 setCurrentPage(0);
             } catch (err) {
-                setError("Failed to load menu items.");
+                setError("Failed to load meals.");
             } finally {
                 setLoading(false);
             }
         };
+        loadMeals();
+    }, [selectedIngredient]);
 
-        loadMenuCategory();
-    }, [selectedCategory]);
+    useEffect(() => {
+        if (searchParams) {
+            setFilteredIngredients(ingredients.filter(ingredient =>
+                ingredient.toLowerCase().includes(searchParams.toLowerCase())
+            ));
+        } else {
+            setFilteredIngredients(ingredients);
+        }
+    }, [searchParams, ingredients]);
 
-    const handleCategorySelect = (category: string) => setSelectedCategory(category);
-
+    const handleIngredientSelect = (ingredient: string) => setSelectedIngredient(ingredient);
     const handleNextPage = () => setCurrentPage((prev) => prev + 1);
     const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 0));
 
-    const displayedMeals = menuCategory.slice(
+    const displayedMeals = meals.slice(
         currentPage * itemsPerPage,
         (currentPage + 1) * itemsPerPage
     );
 
     const renderRow = ({ index, style }: ListChildComponentProps) => {
-        const country = filteredCountries[index];
-        const isSelected = selectedCategory === country?.strArea;
+        const ingredient = filteredIngredients[index];
+        const isSelected = selectedIngredient === ingredient;
 
         return (
-            <div style={style} key={country.strArea}>
+            <div style={style} key={ingredient}>
                 <ListItem
-                    onClick={() => handleCategorySelect(country.strArea)}
+                    onClick={() => handleIngredientSelect(ingredient)}
                     sx={{
                         cursor: "pointer",
                         textAlign: "center",
@@ -115,7 +118,9 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
                         borderRadius: 10,
                     }}
                 >
-                    <ListItemText primary={country.strArea} />
+                    <ListItemText
+                        primary={ingredient.length > 10 ? `${ingredient.slice(0, 7)}...` : ingredient}
+                    />
                 </ListItem>
             </div>
         );
@@ -129,12 +134,13 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
                 <Error message={error} />
             ) : (
                 <Grid container sx={{ width: "auto", boxSizing: "border-box" }}>
+
                     <Grid item md={1.5}>
                         <FixedSizeList
-                            height={Math.min(filteredCountries.length * 53, 53 * 13)}
+                            height={Math.min(filteredIngredients.length * 53, 53 * 13)}
                             width={140}
                             itemSize={53}
-                            itemCount={filteredCountries.length}
+                            itemCount={filteredIngredients.length}
                             overscanCount={5}
                             style={{
                                 scrollbarWidth: "none",
@@ -144,8 +150,10 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
                             {renderRow}
                         </FixedSizeList>
                     </Grid>
+
                     <Grid item md={10}>
-                        <Grid container
+                        <Grid
+                            container
                             sx={{
                                 gap: 2,
                                 padding: 2,
@@ -156,7 +164,8 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
                                 flexWrap: "wrap",
                                 minHeight: `calc((${cardHeight}px + 16px) * 3)`,
                                 alignContent: "flex-start",
-                            }}>
+                            }}
+                        >
                             {displayedMeals.map((meal) => (
                                 <MealCard
                                     key={meal.idMeal.toString()}
@@ -166,12 +175,12 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
                                     }}
                                 />
                             ))}
-
                         </Grid>
-                        <Grid container justifyContent="center" alignItems="center" mt={2} pb={0}>
+
+                        <Grid container justifyContent="center" alignItems="center" sx={{ marginTop: "16px" }}>
                             <PaginationButtons
                                 currentPage={currentPage}
-                                totalItems={menuCategory.length}
+                                totalItems={meals.length}
                                 itemsPerPage={itemsPerPage}
                                 onNext={handleNextPage}
                                 onPrev={handlePrevPage}
@@ -182,4 +191,4 @@ export function NationalDishes({ searchParams }: NationalDishesProps) {
             )}
         </>
     );
-}
+};

@@ -1,8 +1,7 @@
 import { Box, Grid, Typography, CircularProgress, Button } from "@mui/material";
-import { Header } from "./Header";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchMealInfo } from "../services/mealApi";
+import { getData } from "../services/mealApi";
 import { Meal } from "../types/meals";
 import { mealBackground } from "../styles/mealBackgroundStyle";
 
@@ -14,20 +13,29 @@ export function MealDetails() {
     const { backgroundLayer } = mealBackground();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        async function loadMeal() {
-            try {
-                setLoading(true);
-                const details = await fetchMealInfo(id!);
-                setMealDetails(details.meals[0]);
-            } catch {
-                setError("Error fetching meal details.");
-            } finally {
-                setLoading(false);
-            }
+    async function fetchMeal(mealId?: string) {
+        try {
+            setLoading(true);
+            const endpoint = mealId
+                ? `search.php?s=${mealId.replace(/-/g, " ")}`
+                : `random.php`;
+            const details = await getData(endpoint);
+            setLoading(false);
+            setMealDetails(details.meals ? details.meals[0] : null);
+        } catch (err: any) {
+            setLoading(false);
+            console.error(err.message);
+            setError("Error fetching meal details.");
         }
-        loadMeal();
+    }
+
+    useEffect(() => {
+        fetchMeal(id);
     }, [id]);
+
+    const RandomClick = () => {
+        fetchMeal();
+    };
 
     if (loading) {
         return (
@@ -35,7 +43,6 @@ export function MealDetails() {
                 <Box sx={backgroundLayer} />
                 <CircularProgress sx={{ display: "block", margin: "auto", marginTop: 5 }} />
             </>
-
         );
     }
 
@@ -43,9 +50,10 @@ export function MealDetails() {
         return (
             <>
                 <Box sx={backgroundLayer} />
-                <Header />
                 <Box sx={{ textAlign: "center", marginTop: 5 }}>
-                    <Typography variant="h6" color="error">{error}</Typography>
+                    <Typography variant="h6" color="error">
+                        {error}
+                    </Typography>
                     <Button variant="contained" color="primary" onClick={() => navigate("/menu")}>
                         Back
                     </Button>
@@ -57,31 +65,22 @@ export function MealDetails() {
     return (
         <>
             <Box sx={backgroundLayer} />
-
-
             {mealDetails ? (
                 <Grid container spacing={3} sx={{ padding: 3, justifyContent: "center" }}>
-                    {/* Leva strana: Slika */}
                     <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
                         <img
                             src={mealDetails.strMealThumb}
                             alt={mealDetails.strMeal}
-                            style={{
-                                borderRadius: "8px",
-                                width: "100%",
-                                objectFit: "contain",
-                            }}
+                            style={{ borderRadius: "8px", width: "100%", objectFit: "contain" }}
                         />
                     </Grid>
 
-                    {/* Desna strana: Sastojci i dugme */}
                     <Grid item xs={12} md={6}>
                         <Typography variant="h2" sx={{ marginBottom: 2, textAlign: "center" }}>
                             {mealDetails.strMeal}
                         </Typography>
                         <Typography variant="h6">Ingredients:</Typography>
 
-                        {/* Box sa sastojcima, omogućeno skrolovanje */}
                         <Box sx={{ maxHeight: "60vh", overflowY: "auto" }}>
                             <ul>
                                 {Array.from({ length: 20 }).map((_, i) => {
@@ -94,9 +93,14 @@ export function MealDetails() {
                             </ul>
                         </Box>
 
-                        <Button variant="contained" color="primary" onClick={() => navigate("/menu")} sx={{ marginTop: 2 }}>
-                            Back
-                        </Button>
+                        <Grid>
+                            <Button variant="contained" color="primary" onClick={() => navigate("/menu")} sx={{ marginTop: 2 }}>
+                                Back
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={RandomClick} sx={{ marginTop: 2 }}>
+                                Random Meal
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
             ) : (
@@ -105,6 +109,3 @@ export function MealDetails() {
         </>
     );
 }
-
-
-

@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedStyles } from '../styles/useSharedStyles';
 
 export function WelcomeMenu() {
+
     const { fadeIn, slideInFromRight, sharedBoxStyles, backgroundLayer, buttonStyles } = useSharedStyles();
+
     const navigate = useNavigate();
 
     return (

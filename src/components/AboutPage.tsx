@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedStyles } from '../styles/useSharedStyles';
 
 export function About() {
+
     const { fadeIn, sharedBoxStyles, backgroundLayer, buttonStyles } = useSharedStyles();
+
     const navigate = useNavigate();
 
     return (
@@ -28,7 +30,7 @@ export function About() {
                         textAlign: 'center',
                         marginTop: 2,
                         animation: `${fadeIn} 2s ease-in`,
-                        whiteSpace: 'pre-line', // Prikazuje razmake i prelome linija
+                        whiteSpace: 'pre-line',
                     }}
                 >
                     {`Address: Art Square 15, Belgrade, Serbia

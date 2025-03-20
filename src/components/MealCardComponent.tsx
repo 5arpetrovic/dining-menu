@@ -1,11 +1,7 @@
 import { MealCardProps } from "../types/meals";
-
 import { useNavigate } from "react-router-dom";
-
 import { Grid, Typography } from "@mui/material";
-
 import { alpha } from "@mui/system";
-
 import { theme } from "../styles/theme";
 
 
@@ -15,23 +11,19 @@ export const MealCard: React.FC<MealCardProps> = ({ meal }) => {
     return (
         <Grid
             item
-            key={meal.idMeal}
-            xs={12}
-            sm={6}
-            md={4}
             sx={{
+                maxWidth: "20%",
+                maxHeight: "33.33% ",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "230px",
-                backgroundColor: alpha(theme.palette.secondary.light, 0.6),
+                backgroundColor: alpha(theme.palette.secondary.light, 0.8),
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                 borderRadius: "8px",
                 cursor: "pointer",
-                transition: "background-color 0.3s ease, transform 0.3s ease",
+                transition: "transform 0.3s ease",
                 "&:hover": {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.8),
                     transform: "scale(1.05)",
                 },
             }}
@@ -41,11 +33,11 @@ export const MealCard: React.FC<MealCardProps> = ({ meal }) => {
                 src={meal.strMealThumb}
                 alt={meal.strMeal}
                 style={{
-                    width: "120px",
-                    height: "100px",
+                    width: "70%",
+                    height: "70%",
                     objectFit: "cover",
                     borderRadius: "50%",
-                    marginBottom: "16px",
+                    marginBottom: "8px",
                 }}
             />
             <Typography
@@ -64,5 +56,10 @@ export const MealCard: React.FC<MealCardProps> = ({ meal }) => {
                 {meal.strMeal}
             </Typography>
         </Grid>
+
+
+
+
+
     );
 };
